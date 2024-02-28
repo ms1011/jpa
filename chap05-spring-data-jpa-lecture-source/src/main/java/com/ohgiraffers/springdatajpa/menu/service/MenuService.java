@@ -6,7 +6,11 @@ import com.ohgiraffers.springdatajpa.menu.repository.CategoryRepository;
 import com.ohgiraffers.springdatajpa.menu.repository.MenuRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /* 설명.
  *  Service 계층 : 비즈니스 로직, 트랜잭션 처리(@Transactional), DTO <-> Entity(modelmapper lib 활용)
@@ -25,11 +29,22 @@ public class MenuService {
         this.categoryRepository = categoryRepository;
     }
 
+    /* 설명. 1. findById 예제 */
     public MenuDTO findMenuByCode(int menuCode) {
 
         Menu menu = menuRepository.findById(menuCode).orElseThrow(IllegalArgumentException::new);
 
         return mapper.map(menu, MenuDTO.class);
     }
+
+    /* 설명. 2. findAll(페이징 처리 전) */
+    public List<MenuDTO> findMenuList() {
+
+        List<Menu> menuList = menuRepository.findAll(Sort.by("menuCode").descending());
+
+        return menuList.stream().map(menu -> mapper.map(menu, MenuDTO.class)).collect(Collectors.toList());
+    }
+
+
 
 }
