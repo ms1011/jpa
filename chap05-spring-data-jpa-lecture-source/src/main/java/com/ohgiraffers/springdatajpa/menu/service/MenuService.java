@@ -1,9 +1,12 @@
 package com.ohgiraffers.springdatajpa.menu.service;
 
+import com.ohgiraffers.springdatajpa.menu.dto.CategoryDTO;
 import com.ohgiraffers.springdatajpa.menu.dto.MenuDTO;
+import com.ohgiraffers.springdatajpa.menu.entity.Category;
 import com.ohgiraffers.springdatajpa.menu.entity.Menu;
 import com.ohgiraffers.springdatajpa.menu.repository.CategoryRepository;
 import com.ohgiraffers.springdatajpa.menu.repository.MenuRepository;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -72,5 +75,29 @@ public class MenuService {
         List<Menu> menuList = menuRepository.findByMenuPriceGreaterThan(menuPrice);
 
         return menuList.stream().map(menu -> mapper.map(menu, MenuDTO.class)).collect(Collectors.toList());
+    }
+
+    public List<CategoryDTO> findAllCategory() {
+
+        List<Category> categoryList = categoryRepository.findAllCategory();
+
+        return categoryList.stream().map(category -> mapper.map(category, CategoryDTO.class)).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void registMenu(MenuDTO newMenu) {
+        menuRepository.save(mapper.map(newMenu, Menu.class));
+    }
+
+    @Transactional
+    public void modifyMenu(MenuDTO modifyMenu) {
+
+        Menu foundMenu = menuRepository.findById(modifyMenu.getMenuCode()).orElseThrow(IllegalArgumentException::new);
+        foundMenu.setMenuName(modifyMenu.getMenuName());
+    }
+
+    @Transactional
+    public void deleteMenu(int menuCode) {
+        menuRepository.deleteById(menuCode);
     }
 }
